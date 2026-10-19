@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DD KIRANA STORE - Online Grocery Shopping</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f5f5f5; color: #333; }
+        header {
+            background: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
+            color: white; padding: 15px 20px; display: flex;
+            justify-content: space-between; align-items: center;
+            position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        header h1 { font-size: 1.6em; }
+        .cart-icon {
+            background: white; color: #FF6B35; width: 50px; height: 50px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 1.3em;
+            cursor: pointer; position: relative;
+        }
+        .cart-count {
+            position: absolute; top: -8px; right: -8px; background: #FFD700; color: #333;
+            border-radius: 50%; width: 24px; height: 24px; display: flex;
+            align-items: center; justify-content: center; font-weight: bold; font-size: 0.85em;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 0 15px; }
+        .page { display: none; }
+        .page.active { display: block; }
+        .offer-banner {
+            background: linear-gradient(90deg, #FFD700 0%, #FFC107 100%);
+            padding: 18px; text-align: center; font-weight: bold; margin: 15px 0; border-radius: 8px;
+        }
+        .section-title {
+            font-size: 1.7em; color: #FF6B35; margin: 25px 0 15px; text-align: center;
+            border-bottom: 3px solid #FF6B35; padding-bottom: 10px;
+        }
+        .products-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 15px; margin: 20px 0;
+        }
+        .product-card {
+            background: white; border-radius: 12px; overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: transform 0.3s;
+        }
+        .product-card:hover { transform: translateY(-5px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .product-image { width: 100%; height: 150px; object-fit: cover; background: #f0f0f0; }
+        .product-info { padding: 12px; }
+        .product-name { font-weight: bold; color: #FF6B35; font-size: 0.95em; margin-bottom: 4px; }
+        .product-brand { font-size: 0.85em; color: #999; margin-bottom: 4px; }
+        .product-price { font-size: 1.35em; color: #2c3e50; font-weight: bold; margin: 6px 0; }
+        .btn {
+            width: 100%; padding: 10px; background: #FF6B35; color: white; border: none;
+            border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1em;
+        }
+        .btn:hover { background: #FF5520; }
+        .btn-green { background: #4CAF50; }
+        .btn-green:hover { background: #45a049; }
+        .btn-whatsapp { background: #25D366; }
+        .btn-whatsapp:hover { background: #20ba61; }
+        .btn-light { background: #666; }
+        .btn-light:hover { background: #555; }
+        .btn-small { width: auto; padding: 6px 12px; font-size: 0.9em; }
+        .qty-btn {
+            background: #f0f0f0; border: none; width: 30px; height: 30px; border-radius: 4px;
+            cursor: pointer; font-weight: bold; color: #FF6B35; font-size: 1em;
+        }
+        .cart-box {
+            background: white; border-radius: 10px; padding: 15px 20px; margin: 20px 0;
+        }
+        .cart-item {
+            display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #eee; flex-wrap: wrap;
+        }
+        .cart-item img { width: 60px; height: 60px; object-fit: cover; border-radius: 6px; }
+        .cart-item-details { flex: 1; min-width: 140px; }
+        .cart-item-name { font-weight: bold; color: #FF6B35; }
+        .cart-item-price { color: #666; font-size: 0.95em; }
+        .cart-item-controls { display: flex; align-items: center; gap: 8px; }
+        .remove-btn {
+            background: #ff6b6b; color: white; border: none; padding: 6px 10px;
+            border-radius: 4px; cursor: pointer; font-weight: bold;
+        }
+        .summary-box { background: white; padding: 20px; border-radius: 10px; margin: 20px 0; border: 2px solid #FF6B35; }
+        .summary-row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 1.05em; }
+        .summary-row.total {
+            border-top: 3px solid #FF6B35; padding-top: 12px; margin-top: 6px;
+            font-weight: bold; font-size: 1.3em; color: #FF6B35;
+        }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 6px; font-weight: bold; }
+        .form-group input, .form-group textarea {
+            width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 6px;
+            font-size: 1em; font-family: inherit;
+        }
+        .form-group input:focus, .form-group textarea:focus { outline: none; border-color: #FF6B35; }
+        .location-box {
+            background: #fff8e1; border: 2px dashed #FFC107; border-radius: 8px;
+            padding: 15px; margin-bottom: 15px;
+        }
+        .location-status { margin-top: 10px; font-size: 0.95em; }
+        .location-ok { color: #2e7d32; font-weight: bold; }
+        .location-err { color: #c62828; }
+        .empty-cart { text-align: center; padding: 50px 20px; background: white; border-radius: 10px; margin: 20px 0; }
+        .empty-cart h2 { color: #FF6B35; margin-bottom: 10px; }
+        .pay-option {
+            display: flex; align-items: center; gap: 10px; padding: 12px;
+            border: 2px solid #ddd; border-radius: 6px; margin-bottom: 8px; cursor: pointer;
+        }
+        .pay-option input { width: 18px; height: 18px; accent-color: #FF6B35; }
+        .pay-option label { cursor: pointer; font-weight: normal; flex: 1; }
+        .toast {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: #333; color: white; padding: 12px 20px; border-radius: 8px;
+            display: none; z-index: 200; max-width: 90%; text-align: center;
+        }
+        @media (max-width: 768px) {
+            .products-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+            header h1 { font-size: 1.3em; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>🛒 DD KIRANA STORE</h1>
+        <div class="cart-icon" onclick="goToCart()">
+            🛒
+            <span class="cart-count" id="cartCount">0</span>
+        </div>
+    </header>
+
+    <!-- SHOP PAGE -->
+    <div id="shopPage" class="page active">
+        <div class="container">
+            <div class="offer-banner">
+                ⭐ SPECIAL OFFER: ₹500 ka saman lo → 1 FREE BAG paao! ⭐
+            </div>
+            <h2 class="section-title">🛍️ Sabhi Products</h2>
+            <div class="products-grid" id="productsGrid"></div>
+        </div>
+    </div>
+
+    <!-- CART + CHECKOUT PAGE -->
+    <div id="cartPage" class="page">
+        <div class="container">
+            <button class="btn btn-small btn-light" onclick="goToShop()" style="margin: 15px 0;">← Shop par wapas jao</button>
+
+            <h2 class="section-title">🛒 Aapka Cart</h2>
+            <div id="cartContent"></div>
+
+            <div id="checkoutBox" style="display:none;">
+                <h2 class="section-title">📋 Delivery Details</h2>
+                <div class="summary-box" style="border-color:#ddd;">
+                    <div class="form-group">
+                        <label>👤 Aapka Naam *</label>
+                        <input type="text" id="custName" placeholder="Poora naam">
+                    </div>
+                    <div class="form-group">
+                        <label>📱 WhatsApp Number *</label>
+                        <input type="tel" id="custPhone" placeholder="10 digit number">
+                    </div>
+                    <div class="form-group">
+                        <label>🏠 Ghar ka Address / Landmark *</label>
+                        <textarea id="custAddress" placeholder="Ghar ka number, gali, landmark" style="min-height:70px;"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>💳 Payment ka tarika *</label>
+                        <div class="pay-option">
+                            <input type="radio" name="pay" id="payUpi" value="upi" checked onchange="updatePaymentTotal()">
+                            <label for="payUpi">📱 UPI se pay karo (GPay / PhonePe / Paytm)</label>
+                        </div>
+                        <div class="pay-option">
+                            <input type="radio" name="pay" id="payCod" value="cod" onchange="updatePaymentTotal()">
+                            <label for="payCod">💵 Cash on Delivery — <b>₹10 extra</b></label>
+                        </div>
+                    </div>
+
+                    <div class="summary-box" style="margin:0 0 15px; padding:12px 15px;">
+                        <div class="summary-row"><span>Saman ka total</span><span id="subTotalTxt"></span></div>
+                        <div class="summary-row"><span id="adjLabel"></span><span id="adjAmt"></span></div>
+                        <div class="summary-row total"><span>Aapko dena hai</span><span id="finalTotalTxt"></span></div>
+                    </div>
+
+                    <div id="upiBox" class="summary-box" style="margin:0 0 15px; padding:14px; text-align:center;">
+                        <p style="margin-bottom:10px;">UPI se abhi pay karein:</p>
+                        <a id="upiPayBtn" class="btn btn-green" href="#" style="display:inline-block; text-decoration:none; width:auto; padding:12px 22px;">📱 UPI app kholo</a>
+                        <p style="font-size:0.9em; color:#666; margin-top:10px;">
+                            UPI ID: <b>9508376360@ybl</b>
+                            <button class="btn btn-light btn-small" onclick="copyUpi()" style="margin-left:6px;">Copy</button>
+                        </p>
+                        <p style="font-size:0.85em; color:#888; margin-top:6px;">Pay karne ke baad neeche WhatsApp order bhejein.</p>
+                    </div>
+
+                    <div class="location-box">
+                        <strong>📍 Exact Location bhejo (delivery ke liye zaroori)</strong>
+                        <p style="font-size:0.9em; color:#666; margin:6px 0 10px;">
+                            Button dabane par browser location maangega. "Allow" karein.
+                        </p>
+                        <button class="btn btn-small btn-light" onclick="getLocation()" id="locBtn">📍 Mera location bhejo</button>
+                        <div class="location-status" id="locStatus"></div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>💬 Koi khaas baat (optional)</label>
+                        <textarea id="custNotes" placeholder="Jaise: ghanti mat bajana, bachcha so raha hai" style="min-height:50px;"></textarea>
+                    </div>
+
+                    <button class="btn btn-whatsapp" style="font-size:1.1em; padding:14px;" onclick="sendOrder()">
+                        📤 WhatsApp par Order Bhejo
+                    </button>
+                    <p style="font-size:0.85em; color:#666; margin-top:10px; text-align:center;">
+                        Order bhejne ke baad WhatsApp khulega. Wahan "Send" dabayein.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const STORE_WHATSAPP = '919508376360';
+        const STORE_UPI = '9508376360@ybl';
+
+        // Default products (same as admin panel defaults)
+        const products = [
+            { id: 1, name: "Aashirvaad Basmati Rice", brand: "2kg", price: 320, image: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=300" },
+            { id: 2, name: "Fortune Sunflower Oil", brand: "1L", price: 155, image: "https://images.unsplash.com/photo-1587734314609-c4b5b759b1e9?w=300" },
+            { id: 3, name: "Britannia Good Day", brand: "400g", price: 75, image: "https://images.unsplash.com/photo-1550080876-de96c1767d5e?w=300" },
+            { id: 4, name: "Kurkure Namkeen", brand: "20g", price: 10, image: "https://images.unsplash.com/photo-1599599810694-b5ac4dd94cde?w=300" },
+            { id: 5, name: "Popcorn Snack", brand: "100g", price: 45, image: "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=300" },
+            { id: 6, name: "Savlon Soap Bar", brand: "125g", price: 35, image: "https://images.unsplash.com/photo-1582142225890-35d4a2ecfd7a?w=300" },
+            { id: 7, name: "Sanitary Pads", brand: "20 pcs", price: 130, image: "https://images.unsplash.com/photo-1621905251999-9a2025c79a82?w=300" },
+            { id: 8, name: "Eggs Tray", brand: "30 pcs", price: 150, image: "https://images.unsplash.com/photo-1585350740899-64b6f6e46e8a?w=300" },
+            { id: 9, name: "Thums Up", brand: "250ml", price: 50, image: "https://images.unsplash.com/photo-1590542331432-8a5d91221683?w=300" },
+            { id: 10, name: "Sprite", brand: "250ml", price: 50, image: "https://images.unsplash.com/photo-1586985555598-2707db8a0902?w=300" },
+            { id: 11, name: "Coca Cola", brand: "250ml", price: 50, image: "https://images.unsplash.com/photo-1554421305-ebb695e36332?w=300" },
+            { id: 12, name: "Mirinda", brand: "250ml", price: 50, image: "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=300" }
+        ];
+
+        let cart = JSON.parse(localStorage.getItem('dd_cart')) || [];
+        let customerLocation = null; // { lat, lng }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.style.display = 'block';
+            setTimeout(() => t.style.display = 'none', 2500);
+        }
+
+        function saveCart() {
+            localStorage.setItem('dd_cart', JSON.stringify(cart));
+            updateCartCount();
+        }
+
+        function renderProducts() {
+            document.getElementById('productsGrid').innerHTML = products.map(p => `
+                <div class="product-card">
+                    <img src="${p.image}" alt="${p.name}" class="product-image">
+                    <div class="product-info">
+                        <div class="product-name">${p.name}</div>
+                        <div class="product-brand">${p.brand}</div>
+                        <div class="product-price">₹${p.price}</div>
+                        <button class="btn" onclick="addToCart(${p.id})">Cart mein daalo</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function addToCart(id) {
+            const product = products.find(p => p.id === id);
+            const existing = cart.find(c => c.id === id);
+            if (existing) existing.qty++;
+            else cart.push({ id: product.id, name: product.name, price: product.price, image: product.image, qty: 1 });
+            saveCart();
+            showToast('✅ ' + product.name + ' cart mein add ho gaya');
+        }
+
+        function updateCartCount() {
+            document.getElementById('cartCount').textContent = cart.reduce((s, i) => s + i.qty, 0);
+        }
+
+        function changeQty(id, delta) {
+            const item = cart.find(c => c.id === id);
+            if (!item) return;
+            item.qty += delta;
+            if (item.qty <= 0) cart = cart.filter(c => c.id !== id);
+            saveCart();
+            renderCart();
+        }
+
+        function removeItem(id) {
+            cart = cart.filter(c => c.id !== id);
+            saveCart();
+            renderCart();
+        }
+
+        function cartTotal() {
+            return cart.reduce((s, i) => s + i.price * i.qty, 0);
+        }
+
+        function renderCart() {
+            const content = document.getElementById('cartContent');
+            const checkout = document.getElementById('checkoutBox');
+
+            if (cart.length === 0) {
+                content.innerHTML = `
+                    <div class="empty-cart">
+                        <h2>🛒 Aapka cart khali hai</h2>
+                        <p style="color:#666; margin:10px 0;">Products add karke yahan aayein.</p>
+                        <button class="btn btn-small" onclick="goToShop()">← Shopping karein</button>
+                    </div>`;
+                checkout.style.display = 'none';
+                return;
+            }
+
+            content.innerHTML = `
+                <div class="cart-box">
+                    ${cart.map(item => `
+                        <div class="cart-item">
+                            <img src="${item.image}" alt="${item.name}">
+                            <div class="cart-item-details">
+                                <div class="cart-item-name">${item.name}</div>
+                                <div class="cart-item-price">₹${item.price} × ${item.qty} = ₹${item.price * item.qty}</div>
+                            </div>
+                            <div class="cart-item-controls">
+                                <button class="qty-btn" onclick="changeQty(${item.id}, -1)">−</button>
+                                <span>${item.qty}</span>
+                                <button class="qty-btn" onclick="changeQty(${item.id}, 1)">+</button>
+                                <button class="remove-btn" onclick="removeItem(${item.id})">Hatao</button>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+                <div class="summary-box">
+                    <div class="summary-row"><span>📦 Subtotal</span><span>₹${cartTotal()}</span></div>
+                    <div class="summary-row"><span>🚚 Delivery (2 km ke andar)</span><span style="color:#4CAF50; font-weight:bold;">FREE</span></div>
+                    <div class="summary-row total"><span>Total</span><span>₹${cartTotal()}</span></div>
+                    <button class="btn btn-green" style="margin-top:12px; font-size:1.05em; padding:14px;" onclick="showCheckout()">Delivery Details bharo →</button>
+                </div>`;
+            checkout.style.display = 'none';
+        }
+
+        function showCheckout() {
+            document.getElementById('checkoutBox').style.display = 'block';
+            updatePaymentTotal();
+            document.getElementById('checkoutBox').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        const UPI_DISCOUNT = 0;
+        const COD_EXTRA = 10;
+
+        function getPayMethod() {
+            const sel = document.querySelector('input[name="pay"]:checked');
+            return sel ? sel.value : 'upi';
+        }
+
+        function getFinalTotal() {
+            const sub = cartTotal();
+            if (getPayMethod() === 'cod') return sub + COD_EXTRA;
+            return Math.max(0, sub - UPI_DISCOUNT);
+        }
+
+        function updatePaymentTotal() {
+            const sub = cartTotal();
+            const cod = getPayMethod() === 'cod';
+            document.getElementById('subTotalTxt').textContent = '₹' + sub;
+            document.getElementById('adjLabel').textContent = cod ? 'Cash on Delivery charge' : '';
+            document.getElementById('adjAmt').textContent = cod ? '+₹' + COD_EXTRA : '';
+            document.getElementById('finalTotalTxt').textContent = '₹' + getFinalTotal();
+            updateUpiLink();
+        }
+
+        function updateUpiLink() {
+            const amt = getFinalTotal();
+            const link = `upi://pay?pa=${STORE_UPI}&pn=${encodeURIComponent('DD KIRANA STORE')}&am=${amt}&cu=INR&tn=${encodeURIComponent('DD Kirana Order')}`;
+            document.getElementById('upiPayBtn').href = link;
+            document.getElementById('upiBox').style.display = getPayMethod() === 'upi' ? 'block' : 'none';
+        }
+
+        function copyUpi() {
+            if (navigator.clipboard) navigator.clipboard.writeText('9508376360@ybl');
+            showToast('✅ UPI ID copy ho gaya');
+        }
+
+        function getLocation() {
+            const status = document.getElementById('locStatus');
+            if (!navigator.geolocation) {
+                status.innerHTML = '<span class="location-err">Aapke browser mein location support nahi hai.</span>';
+                return;
+            }
+            status.textContent = '⏳ Location le rahe hain...';
+            navigator.geolocation.getCurrentPosition(
+                pos => {
+                    customerLocation = { lat: pos.coords.latitude.toFixed(6), lng: pos.coords.longitude.toFixed(6) };
+                    status.innerHTML = `<span class="location-ok">✅ Location mil gayi</span> (±${Math.round(pos.coords.accuracy)} m)`;
+                },
+                err => {
+                    customerLocation = null;
+                    const msg = err.code === 1
+                        ? 'Location permission band hai. Browser settings mein location allow karein, ya address likhein.'
+                        : 'Location nahi mili. GPS on karke dobara try karein, ya address likhein.';
+                    status.innerHTML = `<span class="location-err">${msg}</span>`;
+                },
+                { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+            );
+        }
+
+        function sendOrder() {
+            const name = document.getElementById('custName').value.trim();
+            const phone = document.getElementById('custPhone').value.trim();
+            const address = document.getElementById('custAddress').value.trim();
+            const notes = document.getElementById('custNotes').value.trim();
+
+            if (!name || !phone || !address) {
+                alert('❌ Naam, WhatsApp number aur address zaroori hain.');
+                return;
+            }
+            if (!/^[6-9]\d{9}$/.test(phone)) {
+                alert('❌ Sahi 10 digit WhatsApp number likhein.');
+                return;
+            }
+            if (cart.length === 0) {
+                alert('❌ Cart khali hai.');
+                return;
+            }
+
+            let text = `🛒 *DD KIRANA STORE - NAYA ORDER*\n\n`;
+            text += `👤 Naam: ${name}\n`;
+            text += `📱 Phone: ${phone}\n`;
+            text += `🏠 Address: ${address}\n`;
+            if (customerLocation) {
+                text += `📍 Location: https://www.google.com/maps?q=${customerLocation.lat},${customerLocation.lng}\n`;
+            } else {
+                text += `📍 Location: (customer ne location nahi bheji)\n`;
+            }
+            text += `\n📦 *Items:*\n`;
+            cart.forEach(i => {
+                text += `• ${i.name} × ${i.qty} = ₹${i.price * i.qty}\n`;
+            });
+            text += `\n💰 *Total: ₹${getFinalTotal()}*\n`;
+            text += getPayMethod() === 'cod'
+                ? `💵 Payment: Cash on Delivery (+₹${COD_EXTRA})\n`
+                : `📱 Payment: UPI (${STORE_UPI})\n`;
+            if (notes) text += `💬 Note: ${notes}\n`;
+
+            const url = `https://wa.me/${STORE_WHATSAPP}?text=${encodeURIComponent(text)}`;
+
+            // Same-tab navigation is more reliable than window.open on mobile
+            window.location.href = url;
+        }
+
+        function goToCart() {
+            document.getElementById('shopPage').classList.remove('active');
+            document.getElementById('cartPage').classList.add('active');
+            renderCart();
+            window.scrollTo(0, 0);
+        }
+
+        function goToShop() {
+            document.getElementById('cartPage').classList.remove('active');
+            document.getElementById('shopPage').classList.add('active');
+            window.scrollTo(0, 0);
+        }
+
+        renderProducts();
+        updateCartCount();
+    </script>
+</body>
+</html>
